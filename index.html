@@ -2,539 +2,485 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>ZENTIX | ABILITY WAR</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Zentix - ABILITY WAR</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#05070c;color:#fff;font-family:Arial,sans-serif;touch-action:none}
-canvas{display:block}
-button{cursor:pointer;color:white;font-weight:bold;border:1px solid #397fff;background:#101c31;border-radius:9px;padding:12px}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#05070d;color:white;font-family:Arial,sans-serif}
+button{font:inherit;cursor:pointer;color:white;border:1px solid #3978f6;background:rgba(20,35,65,.9);border-radius:10px}
 button:active{transform:scale(.96)}
 #game{position:fixed;inset:0}
-#screen{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse,#142747,#070b14 65%,#03050a);flex-direction:column}
-.logo{font-size:clamp(48px,12vw,100px);font-weight:1000;letter-spacing:12px;text-shadow:0 0 30px #287cff}
-.sub{letter-spacing:8px;color:#82b5ff;font-size:13px;margin-top:4px}
-#start{margin-top:35px;padding:17px 55px;font-size:19px;background:linear-gradient(120deg,#267bff,#123b91)}
-#screenText{margin-top:15px;color:#8ba4c8;font-size:12px}
-#hud{display:none;position:fixed;inset:0;z-index:3;pointer-events:none}
-#top{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start}
-.box{padding:10px 13px;border:1px solid #3b5c8a88;background:#080e1ddd;border-radius:10px;backdrop-filter:blur(8px);font-size:13px}
-#hpbar{height:8px;width:180px;background:#30394a;border-radius:10px;margin-top:6px;overflow:hidden}
-#hpfill{height:100%;width:100%;background:linear-gradient(90deg,#11c985,#85ffbd)}
-#cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;color:#c6e5ff;text-shadow:0 0 10px #59aaff}
-#skills{position:absolute;bottom:20px;right:20px;display:flex;gap:8px;pointer-events:auto}
-.skill{width:62px;height:62px;background:#0b172cdd;border:1px solid #468bff;font-size:19px}
-.skill small{display:block;font-size:9px;color:#9fc4ff;margin-top:4px}
-#hint{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);font-size:11px;color:#b7c9e6;white-space:nowrap}
-#message{position:absolute;top:23%;left:50%;transform:translateX(-50%);font-size:25px;font-weight:bold;text-shadow:0 0 18px #3995ff;opacity:0;transition:opacity .2s;text-align:center}
-#supplyMark{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:12px;color:#ffdb85;text-shadow:0 0 12px #ffb52e}
-#mobilePad{display:none;position:absolute;left:20px;bottom:25px;width:120px;height:120px;border-radius:50%;border:1px solid #77aaff77;background:#15315a66;pointer-events:auto}
-#stick{position:absolute;left:36px;top:36px;width:46px;height:46px;border-radius:50%;background:#79adffbb}
-#lookArea{display:none;position:absolute;right:0;top:15%;width:53%;height:65%;pointer-events:auto}
-#overlay{display:none;position:fixed;z-index:10;inset:0;background:#030711eF;align-items:center;justify-content:center;padding:15px}
-#cardPanel{width:min(850px,100%);max-height:90%;overflow:auto;background:linear-gradient(145deg,#101b30,#080d18);border:1px solid #4675b9;border-radius:16px;padding:22px;box-shadow:0 0 50px #1766c555}
-#cardTitle{text-align:center;font-size:27px;margin:5px 0 8px}
-#cardDesc{text-align:center;color:#9db5d8;font-size:13px;margin-bottom:20px}
-#cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.card{min-height:175px;text-align:left;background:#111d31;border:1px solid #45658c;padding:15px;border-radius:12px;cursor:pointer;transition:.15s}
-.card:hover{transform:translateY(-4px);border-color:#7cb5ff}
-.card h3{font-size:17px;margin:12px 0 8px}
-.card p{font-size:12px;line-height:1.6;color:#c3d1e8}
-.rarity{font-size:11px;font-weight:bold;letter-spacing:2px}
-.common{color:#c4d0e0}.rare{color:#48b5ff}.epic{color:#ba83ff}.legend{color:#ffc45c}.awaken{color:#ff668c}
-#skip{display:block;margin:18px auto 0;background:#26344c;border-color:#61799c}
-#gameover{display:none;position:fixed;z-index:12;inset:0;background:#030711ee;align-items:center;justify-content:center;flex-direction:column}
-#gameover h1{font-size:48px;color:#ff5672}
-#restart{padding:14px 40px;background:#236fff}
-#err{display:none;position:fixed;z-index:30;bottom:8px;left:8px;right:8px;padding:12px;background:#631b2a;border:1px solid #ff6677;border-radius:8px;white-space:pre-wrap;font-size:12px}
+#game canvas{display:block}
+#startScreen,#loadingScreen,#cardScreen,#ultimateScreen,#gameOver{
+ position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+ background:radial-gradient(ellipse at center,rgba(20,42,85,.78),rgba(3,5,12,.98));
+}
+.panel{width:min(92%,520px);padding:34px 25px;text-align:center;border:1px solid #315da8;
+ background:rgba(7,12,25,.94);border-radius:20px;box-shadow:0 0 45px #153a7770}
+.logo{font-size:clamp(48px,12vw,78px);font-weight:1000;letter-spacing:7px;color:#6da4ff;text-shadow:0 0 25px #3978f6}
+.sub{letter-spacing:5px;color:#a9c7ff;font-size:13px;margin:8px 0 28px}
+.desc{color:#aab6ca;line-height:1.8;font-size:14px;margin:20px 0}
+.bigbtn{width:100%;padding:17px;font-size:19px;font-weight:bold;background:linear-gradient(100deg,#2456c7,#398dff);border:0;box-shadow:0 0 25px #2866df66}
+.small{font-size:12px;color:#8092b3;margin-top:15px}
+.hidden{display:none!important}
+#hud{position:fixed;inset:0;z-index:3;pointer-events:none}
+#topbar{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;gap:10px}
+.hudbox{background:#080e1ddd;border:1px solid #28477b;border-radius:10px;padding:9px 13px;font-size:13px;backdrop-filter:blur(8px)}
+#healthWrap{position:absolute;left:50%;top:17px;transform:translateX(-50%);width:min(38%,300px)}
+.bar{height:12px;background:#20283a;border-radius:20px;overflow:hidden;border:1px solid #52617d}
+#healthBar{height:100%;width:100%;background:linear-gradient(90deg,#d52d4b,#ff657b)}
+#xpWrap{position:absolute;left:0;right:0;bottom:0;height:5px;background:#18243a}
+#xpBar{height:100%;width:0;background:#4c9dff;box-shadow:0 0 12px #398dff}
+#skillbar{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:9px}
+.skill{width:65px;height:65px;background:#0a1325dd;border:1px solid #4675c5;border-radius:12px;text-align:center;padding:6px;pointer-events:auto;position:relative}
+.skill b{font-size:20px;display:block;color:#8bb8ff}
+.skill span{font-size:10px;color:#b9c8e2}
+.cool{position:absolute;inset:0;background:#02050acc;display:none;align-items:center;justify-content:center;border-radius:12px;font-size:18px}
+#skillbar .skill.disabled .cool{display:flex}
+#crosshair{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:20px;color:#b8d5ff;text-shadow:0 0 8px #3978f6}
+#notice{position:absolute;top:23%;left:50%;transform:translateX(-50%);font-size:22px;font-weight:bold;color:#b9d7ff;text-shadow:0 0 15px #3978f6;white-space:nowrap;text-align:center}
+#mobileControls{display:none;pointer-events:none}
+#joystick{position:absolute;bottom:105px;left:24px;width:115px;height:115px;border-radius:50%;background:#ffffff18;border:1px solid #ffffff55;pointer-events:auto;touch-action:none}
+#stick{position:absolute;left:34px;top:34px;width:46px;height:46px;border-radius:50%;background:#8bb8ff88;border:1px solid #b8d5ff}
+#mobileSkills{position:absolute;right:16px;bottom:100px;display:flex;flex-direction:column;gap:9px;pointer-events:auto}
+#mobileSkills button{width:58px;height:48px;background:#101e3ddd;font-weight:bold}
+#mobileSkills button span{display:block;font-size:9px;color:#b8c9e8}
+#supplyText{position:absolute;top:75px;left:50%;transform:translateX(-50%);font-size:12px;color:#ffdb8a}
+#cardScreen,#ultimateScreen{z-index:12;background:#030711eF}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.card{padding:17px 12px;text-align:left;min-height:130px;background:linear-gradient(145deg,#142441,#080e1b);border:1px solid #416bb1;border-radius:12px}
+.card h3{margin:0 0 10px;color:#a9ccff;font-size:16px}
+.card p{font-size:12px;color:#b6c2d7;line-height:1.6;margin:0}
+.rarity{font-size:10px;color:#70a7ff;margin-bottom:8px}
+#gameOver .panel h1{font-size:38px}
 @media(max-width:700px){
- #top{top:7px;left:7px;right:7px}
- .box{padding:7px;font-size:11px}
- #hpbar{width:120px}
- #skills{right:8px;bottom:15px;gap:4px}
- .skill{width:49px;height:53px;font-size:16px;padding:4px}
- #mobilePad{display:block}
- #lookArea{display:block}
- #hint{bottom:145px;font-size:9px}
- #cards{grid-template-columns:1fr}
- .card{min-height:115px}
+ #mobileControls{display:block}
+ #skillbar{display:none}
+ #healthWrap{top:65px;width:55%}
+ #topbar{font-size:11px}
+ #joystick{bottom:25px}
+ #mobileSkills{bottom:24px}
+ .cards{grid-template-columns:1fr}
+ .panel{max-height:90vh;overflow:auto}
 }
 </style>
 </head>
 <body>
 <div id="game"></div>
 
-<div id="screen">
+<div id="startScreen">
+ <div class="panel">
   <div class="logo">ZENTIX</div>
   <div class="sub">ABILITY WAR</div>
-  <button id="start">전투 시작</button>
-  <div id="screenText">CHOOSE YOUR DESTINY</div>
-</div>
-
-<div id="hud">
-  <div id="top">
-    <div class="box">
-      <div>LEVEL <b id="level">1</b>　KILLS <b id="kills">0</b></div>
-      <div>HP <b id="hptext">100</b> / 100</div>
-      <div id="hpbar"><div id="hpfill"></div></div>
-      <div style="margin-top:5px;color:#8ebaff">무기 강화 <b id="weaponLevel">1</b></div>
-    </div>
-    <div class="box">ZENTIX <span style="color:#6daaff">● ONLINE</span><br><span id="enemyCount">적 0명</span></div>
+  <div class="desc">
+   끝없이 몰려오는 적을 처치하고<br>
+   증강을 획득해 더욱 강해져라.<br><br>
+   <b>생존 모드 · 사무라이</b>
   </div>
-  <div id="cross">+</div>
-  <div id="message"></div>
-  <div id="supplyMark"></div>
-  <div id="hint">WASD 이동 · 마우스 시점 · 클릭 공격 · Q E F R 스킬</div>
-  <div id="skills">
-    <button class="skill" data-skill="q">Q<small>발도술</small></button>
-    <button class="skill" data-skill="e">E<small>회전참</small></button>
-    <button class="skill" data-skill="f">F<small>비검</small></button>
-    <button class="skill" data-skill="r">R<small id="ultName">낙화천풍</small></button>
+  <button class="bigbtn" id="startBtn">전투 시작</button>
+  <div class="small">PC: WASD 이동 · 마우스 시점 · 좌클릭 공격<br>모바일: 왼쪽 이동 · 오른쪽 화면 회전 · 스킬 버튼</div>
+ </div>
+</div>
+
+<div id="loadingScreen" class="hidden">
+ <div class="panel"><h2>전투 준비 중...</h2><p id="loadingText">Zentix 초기화 중</p></div>
+</div>
+
+<div id="hud" class="hidden">
+ <div id="topbar">
+  <div class="hudbox">LV <b id="level">1</b>　 처치 <b id="kills">0</b></div>
+  <div class="hudbox">체력 <b id="hpText">100 / 100</b></div>
+  <div class="hudbox">생존 <b id="timeText">00:00</b></div>
+ </div>
+ <div id="healthWrap"><div class="bar"><div id="healthBar"></div></div></div>
+ <div id="crosshair">+</div>
+ <div id="notice"></div>
+ <div id="supplyText"></div>
+ <div id="skillbar">
+  <button class="skill" data-skill="Q"><b>Q</b><span>발도술</span><div class="cool"></div></button>
+  <button class="skill" data-skill="E"><b>E</b><span>회전참</span><div class="cool"></div></button>
+  <button class="skill" data-skill="F"><b>F</b><span>비검</span><div class="cool"></div></button>
+  <button class="skill" data-skill="R"><b>R</b><span>궁극기</span><div class="cool"></div></button>
+ </div>
+ <div id="mobileControls">
+  <div id="joystick"><div id="stick"></div></div>
+  <div id="mobileSkills">
+   <button data-skill="Q">Q<span>발도술</span></button>
+   <button data-skill="E">E<span>회전참</span></button>
+   <button data-skill="F">F<span>비검</span></button>
+   <button data-skill="R">R<span>궁극기</span></button>
+   <button id="mobileAttack">⚔<span>공격</span></button>
   </div>
-  <div id="mobilePad"><div id="stick"></div></div>
-  <div id="lookArea"></div>
+ </div>
+ <div id="xpWrap"><div id="xpBar"></div></div>
 </div>
 
-<div id="overlay">
-  <div id="cardPanel">
-    <div id="cardTitle">증강 선택</div>
-    <div id="cardDesc">원하는 증강을 선택하세요.</div>
-    <div id="cards"></div>
-    <button id="skip">선택하지 않고 계속</button>
-  </div>
+<div id="ultimateScreen" class="hidden">
+ <div class="panel">
+  <h2>궁극기 선택</h2>
+  <p class="desc">R 슬롯에 장착할 궁극기를 하나 선택해.</p>
+  <div class="cards" id="ultimateCards"></div>
+ </div>
 </div>
 
-<div id="gameover">
-  <h1>GAME OVER</h1>
-  <p id="resultText"></p>
-  <button id="restart">다시 시작</button>
+<div id="cardScreen" class="hidden">
+ <div class="panel">
+  <h2>LEVEL UP</h2>
+  <p class="desc">증강 하나를 선택해 사무라이를 강화해.</p>
+  <div class="cards" id="augmentCards"></div>
+ </div>
 </div>
-<div id="err"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script>
-(()=>{
-'use strict';
+<div id="gameOver" class="hidden">
+ <div class="panel">
+  <h1>전투 종료</h1>
+  <p id="resultText" class="desc"></p>
+  <button class="bigbtn" id="restartBtn">다시 도전</button>
+ </div>
+</div>
 
-const $=id=>document.getElementById(id);
-const errorBox=$('err');
-function showError(e){
- errorBox.style.display='block';
- errorBox.textContent='실행 오류: '+(e.stack||e.message||e);
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+/* =========================
+   Zentix - Survival Mode
+========================= */
+
+const $ = id => document.getElementById(id);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x080d19);
+scene.fog = new THREE.Fog(0x080d19, 22, 85);
+
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, .1, 150);
+camera.position.set(0,1.7,5);
+
+let renderer;
+try{
+ renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:"high-performance"});
+ renderer.setSize(innerWidth,innerHeight);
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+ renderer.shadowMap.enabled = true;
+ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+ $("game").appendChild(renderer.domElement);
+}catch(e){
+ $("loadingText").textContent="3D 화면을 초기화하지 못했어. 브라우저에서 WebGL을 지원하는지 확인해줘.";
+ throw e;
 }
-window.addEventListener('error',e=>showError(e.error||e.message));
 
-if(!window.THREE){
- showError('Three.js 로딩 실패. 인터넷 연결을 확인해 주세요.');
- return;
-}
+scene.add(new THREE.HemisphereLight(0x9bbcff,0x171321,1.5));
+const sun = new THREE.DirectionalLight(0xffffff,2.1);
+sun.position.set(-8,15,7);
+sun.castShadow=true;
+scene.add(sun);
 
-let scene,camera,renderer,clock;
-let running=false,dead=false,paused=false;
-let yaw=0,pitch=0;
-let hp=100,maxHp=100,level=1,kills=0,weaponLevel=1,xp=0,nextXp=5;
-let enemies=[],particles=[],projectiles=[],supplies=[];
-let spawnClock=0,supplyClock=0;
-let lastAttack=0,skillTime={q:0,e:0,f:0,r:0};
-let effects={};
-let upgrades={q:0,e:0,f:0,r:0};
-let passive={damage:0,speed:0,heal:0,range:0,critical:0};
-let ultimate='petal';
-let ultimateOptions=[
- {id:'petal',name:'낙화천풍',desc:'벚꽃과 함께 거대한 검격을 한 번 휘둘러 주변을 베어낸다.'},
- {id:'blood',name:'혈월참',desc:'붉은 검기를 방출해 전방의 적을 관통한다.'},
- {id:'heaven',name:'천지혁명',desc:'강력한 충격파로 주변 적들에게 큰 피해를 준다.'}
-];
-let selectedUltimate=false;
-const keys={};
-const mobile={x:0,y:0};
-const player={pos:new THREE.Vector3(0,1.7,8),speed:6};
-const forward=new THREE.Vector3();
-const right=new THREE.Vector3();
-let weapon,weaponBlade;
-
-const rarity={
- common:{name:'일반',color:'#c4d0e0',class:'common'},
- rare:{name:'희귀',color:'#48b5ff',class:'rare'},
- epic:{name:'영웅',color:'#ba83ff',class:'epic'},
- legend:{name:'전설',color:'#ffc45c',class:'legend'},
- awaken:{name:'각성',color:'#ff668c',class:'awaken'}
+const clock = new THREE.Clock();
+const player = {
+ pos:new THREE.Vector3(0,0,5),
+ hp:100,maxHp:100,level:1,xp:0,nextXp:30,
+ speed:7,damage:24,range:3.6,
+ alive:false,invuln:0
 };
 
-try{
- scene=new THREE.Scene();
- scene.background=new THREE.Color(0x070c18);
- scene.fog=new THREE.Fog(0x070c18,30,85);
+let gameStarted=false, paused=false, gameTime=0, kills=0;
+let yaw=0,pitch=0;
+let enemies=[], projectiles=[], particles=[], supplies=[];
+let attackTimer=0, spawnTimer=0, supplyTimer=22;
+let noticeTimer=0, swordSwing=0, ultAnimation=0;
+let selectedUltimate=null;
+let moveForward=0,moveSide=0;
+let keys={};
+let touchLook=null;
+let joystickActive=false, joyX=0,joyY=0;
+let mouseDown=false;
 
- camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,150);
- camera.position.copy(player.pos);
- camera.rotation.order='YXZ';
+const cooldown={Q:0,E:0,F:0,R:0};
+const cooldownMax={Q:5,E:8,F:6,R:22};
+const aug={
+ qPower:0,qRange:0,ePower:0,eExtra:0,fPower:0,fSpeed:0,
+ ultPower:0,damage:0,attackSpeed:0,moveSpeed:0,
+ maxHp:0,lifeSteal:0,crit:0,weapon:0
+};
+const acquired=new Set();
 
- renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
- renderer.setPixelRatio(Math.min(devicePixelRatio,1.35));
- renderer.setSize(innerWidth,innerHeight);
- renderer.outputColorSpace=THREE.SRGBColorSpace;
- $('game').appendChild(renderer.domElement);
- clock=new THREE.Clock();
+const mat=(color,roughness=.65,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
+const floorMat=mat(0x172033);
+const enemyMat=mat(0x8d263f);
+const enemyDark=mat(0x29101c);
+const blueMat=mat(0x367eff,.35,.3);
+const goldMat=mat(0xffc45c,.3,.55);
 
- scene.add(new THREE.HemisphereLight(0xaacbff,0x141727,1.5));
- const sun=new THREE.DirectionalLight(0xffffff,1.2);
- sun.position.set(-10,18,9);scene.add(sun);
+/* Ground and arena */
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(180,180),floorMat);
+floor.rotation.x=-Math.PI/2;
+floor.position.y=-.05;
+floor.receiveShadow=true;
+scene.add(floor);
 
- const floor=new THREE.Mesh(
-  new THREE.PlaneGeometry(110,110),
-  new THREE.MeshStandardMaterial({color:0x101827,roughness:.9})
- );
- floor.rotation.x=-Math.PI/2;floor.position.y=-.06;scene.add(floor);
- const grid=new THREE.GridHelper(110,55,0x27518b,0x182c49);
- grid.position.y=-.04;scene.add(grid);
+const grid=new THREE.GridHelper(180,90,0x315080,0x1b2b48);
+grid.position.y=.005;
+scene.add(grid);
 
- const wallMat=new THREE.MeshStandardMaterial({color:0x17243b,metalness:.4,roughness:.6});
- function box(x,y,z,sx,sy,sz,mat=wallMat){
-  const m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),mat);
-  m.position.set(x,y,z);scene.add(m);return m;
+for(let i=0;i<36;i++){
+ const a=i*Math.PI*2/36;
+ const pillar=new THREE.Mesh(new THREE.CylinderGeometry(.35,.5,4,8),mat(0x202c43));
+ pillar.position.set(Math.cos(a)*27,2,Math.sin(a)*27);
+ pillar.castShadow=true;
+ scene.add(pillar);
+ const lamp=new THREE.PointLight(0x3978ff,1.1,8);
+ lamp.position.set(Math.cos(a)*27,3.5,Math.sin(a)*27);
+ scene.add(lamp);
+}
+
+/* First-person arm and katana */
+const weaponGroup=new THREE.Group();
+camera.add(weaponGroup);
+scene.add(camera);
+weaponGroup.position.set(.48,-.43,-.8);
+
+const sleeve=new THREE.Mesh(new THREE.CylinderGeometry(.13,.17,.65,10),mat(0x182d55));
+sleeve.rotation.z=-.55;
+sleeve.position.set(-.02,-.12,.12);
+weaponGroup.add(sleeve);
+
+const hand=new THREE.Mesh(new THREE.SphereGeometry(.13,12,10),mat(0xd7a17c));
+hand.position.set(.02,.12,-.04);
+weaponGroup.add(hand);
+
+const guard=new THREE.Mesh(new THREE.TorusGeometry(.13,.025,8,16),goldMat);
+guard.position.set(.02,.17,-.14);
+guard.rotation.x=Math.PI/2;
+weaponGroup.add(guard);
+
+const handle=new THREE.Mesh(new THREE.CylinderGeometry(.045,.05,.42,8),mat(0x171923));
+handle.position.set(.02,.16,.08);
+handle.rotation.x=Math.PI/2;
+weaponGroup.add(handle);
+
+const blade=new THREE.Mesh(new THREE.BoxGeometry(.065,.045,1.05),mat(0xd9e8ff,.2,.85));
+blade.position.set(.02,.18,-.62);
+weaponGroup.add(blade);
+
+const bladeTip=new THREE.Mesh(new THREE.ConeGeometry(.035,.18,4),mat(0xe8f3ff,.2,.9));
+bladeTip.rotation.x=-Math.PI/2;
+bladeTip.position.set(.02,.18,-1.22);
+weaponGroup.add(bladeTip);
+
+/* Effects */
+function particle(pos,color=0x75aaff,count=8,power=3,size=.08){
+ for(let i=0;i<count;i++){
+  const mesh=new THREE.Mesh(new THREE.SphereGeometry(size,6,6),new THREE.MeshBasicMaterial({color,transparent:true}));
+  mesh.position.copy(pos);
+  const velocity=new THREE.Vector3((Math.random()-.5)*power,Math.random()*power,(Math.random()-.5)*power);
+  scene.add(mesh);
+  particles.push({mesh,velocity,life:.55+Math.random()*.45,max:.9});
  }
- box(0,3,-38,76,6,1);box(0,3,38,76,6,1);
- box(-38,3,0,1,6,76);box(38,3,0,1,6,76);
+}
 
- for(let x of [-25,-13,13,25]){
-  for(let z of [-25,-7,12,26]){
-   const p=new THREE.Mesh(
-    new THREE.CylinderGeometry(.65,.9,5,8),
-    new THREE.MeshStandardMaterial({color:0x273e62,metalness:.5})
-   );
-   p.position.set(x,2.5,z);scene.add(p);
-   const l=new THREE.PointLight(0x287cff,1,9);
-   l.position.set(x,4.5,z);scene.add(l);
+function slashEffect(pos,angle,color=0x8bbcff,scale=1){
+ const group=new THREE.Group();
+ const curve=new THREE.TorusGeometry(1.1,.045,6,32,Math.PI*.9);
+ const arc=new THREE.Mesh(curve,new THREE.MeshBasicMaterial({color,transparent:true,opacity:.95}));
+ group.add(arc);
+ group.position.copy(pos);
+ group.rotation.set(0,angle,0);
+ group.scale.set(scale,scale,scale);
+ scene.add(group);
+ particles.push({mesh:group,velocity:new THREE.Vector3(0,.15,0),life:.22,max:.22,fade:true});
+}
+
+function hitFlash(pos){
+ const flash=new THREE.Mesh(new THREE.SphereGeometry(.4,8,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8}));
+ flash.position.copy(pos);
+ scene.add(flash);
+ particles.push({mesh:flash,velocity:new THREE.Vector3(0,0,0),life:.12,max:.12,fade:true});
+}
+
+/* Enemy creation */
+function createEnemy(){
+ const angle=Math.random()*Math.PI*2;
+ const distance=19+Math.random()*13;
+ const group=new THREE.Group();
+ const body=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,1.15,8),enemyMat);
+ body.position.y=.9;
+ body.castShadow=true;
+ group.add(body);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.32,10,8),enemyDark);
+ head.position.y=1.72;
+ group.add(head);
+ const eyeMat=new THREE.MeshBasicMaterial({color:0xff526d});
+ for(const x of [-.12,.12]){
+  const eye=new THREE.Mesh(new THREE.SphereGeometry(.045,6,6),eyeMat);
+  eye.position.set(x,1.77,-.27);
+  group.add(eye);
+ }
+ const hpBack=new THREE.Mesh(new THREE.BoxGeometry(1.1,.09,.04),mat(0x260b17));
+ hpBack.position.y=2.2;
+ group.add(hpBack);
+ const hpFront=new THREE.Mesh(new THREE.BoxGeometry(1.05,.07,.05),new THREE.MeshBasicMaterial({color:0xff526d}));
+ hpFront.position.set(0,2.2,-.03);
+ group.add(hpFront);
+ group.position.set(player.pos.x+Math.cos(angle)*distance,0,player.pos.z+Math.sin(angle)*distance);
+ scene.add(group);
+ const hp=45+player.level*9;
+ enemies.push({group,hp,maxHp:hp,speed:1.3+Math.random()*.45+player.level*.025,attack:0,hpFront});
+}
+
+function damageEnemy(enemy,amount,knock=0){
+ if(!enemy || !enemies.includes(enemy)) return;
+ enemy.hp-=amount;
+ hitFlash(enemy.group.position.clone().add(new THREE.Vector3(0,1,0)));
+ particle(enemy.group.position.clone().add(new THREE.Vector3(0,1,0)),0xff6680,5,2,.06);
+ const ratio=Math.max(0,enemy.hp/enemy.maxHp);
+ enemy.hpFront.scale.x=ratio;
+ enemy.hpFront.position.x=-(1.05*(1-ratio))/2;
+ if(enemy.hp<=0){
+  scene.remove(enemy.group);
+  enemies=enemies.filter(e=>e!==enemy);
+  kills++;
+  gainXp(10+Math.floor(player.level*.8));
+  if(Math.random()<.12) player.hp=Math.min(player.maxHp,player.hp+2+player.lifeSteal);
+  updateHud();
+ }
+}
+
+function attack(){
+ if(!gameStarted||paused||!player.alive||attackTimer>0)return;
+ attackTimer=Math.max(.28,.58-aug.attackSpeed*.035);
+ swordSwing=.32;
+ const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+ let hit=false;
+ for(const e of [...enemies]){
+  const to=e.group.position.clone().sub(player.pos);
+  const dist=to.length();
+  to.normalize();
+  if(dist<player.range+aug.qRange*.25 && forward.dot(to)>.05){
+   damageEnemy(e,player.damage+aug.damage+aug.weapon*5);
+   hit=true;
   }
  }
+ const p=player.pos.clone().add(forward.multiplyScalar(1.4));
+ slashEffect(p,yaw,0xb5d7ff,1);
+ if(hit) particle(p,0xffffff,4,1,.05);
+}
 
- // 1인칭 카타나 모델
- weapon=new THREE.Group();camera.add(weapon);
- weapon.position.set(.47,-.4,-.8);
- const handle=new THREE.Mesh(
-  new THREE.CylinderGeometry(.045,.05,.4,8),
-  new THREE.MeshStandardMaterial({color:0x171923})
- );
- handle.position.y=-.13;weapon.add(handle);
- const guard=new THREE.Mesh(
-  new THREE.TorusGeometry(.12,.025,6,16),
-  new THREE.MeshStandardMaterial({color:0xb5c6df,metalness:.8})
- );
- guard.position.y=.09;weapon.add(guard);
- weaponBlade=new THREE.Mesh(
-  new THREE.BoxGeometry(.055,1.02,.035),
-  new THREE.MeshStandardMaterial({color:0xe2efff,metalness:.85,roughness:.2})
- );
- weaponBlade.position.y=.62;weapon.add(weaponBlade);
- const edge=new THREE.Mesh(
-  new THREE.BoxGeometry(.012,.95,.008),
-  new THREE.MeshBasicMaterial({color:0x72c5ff})
- );
- edge.position.set(.03,.62,-.022);weapon.add(edge);
-
- function makeEnemy(){
-  const g=new THREE.Group();
-  const body=new THREE.Mesh(
-   new THREE.CylinderGeometry(.43,.53,1.25,8),
-   new THREE.MeshStandardMaterial({color:0x9d2845})
-  );
-  body.position.y=.85;g.add(body);
-  const head=new THREE.Mesh(
-   new THREE.SphereGeometry(.34,10,8),
-   new THREE.MeshStandardMaterial({color:0x241a28})
-  );
-  head.position.y=1.7;g.add(head);
-  const eyeMat=new THREE.MeshBasicMaterial({color:0xff4668});
-  for(let s of [-1,1]){
-   const eye=new THREE.Mesh(new THREE.SphereGeometry(.055,6,6),eyeMat);
-   eye.position.set(s*.13,1.73,-.29);g.add(eye);
-  }
-  const glow=new THREE.PointLight(0xff174f,.6,3);
-  glow.position.y=1.3;g.add(glow);
-  scene.add(g);
-  return {mesh:g,hp:3+Math.floor(level*.35),speed:1.7+Math.random()*.8,attack:0};
- }
-
- function spawnEnemy(){
-  if(enemies.length>=24)return;
-  const e=makeEnemy();
-  const a=Math.random()*Math.PI*2;
-  const r=18+Math.random()*9;
-  e.mesh.position.set(Math.cos(a)*r,0,Math.sin(a)*r);
-  enemies.push(e);
- }
-
- function particle(pos,color=0x65baff,count=8,power=4){
-  for(let i=0;i<count;i++){
-   const m=new THREE.Mesh(
-    new THREE.SphereGeometry(.04+Math.random()*.05,5,5),
-    new THREE.MeshBasicMaterial({color})
-   );
-   m.position.copy(pos);scene.add(m);
-   particles.push({
-    mesh:m,
-    velocity:new THREE.Vector3((Math.random()-.5)*power,Math.random()*power,(Math.random()-.5)*power),
-    life:.4+Math.random()*.5
-   });
-  }
- }
-
- function slash(color=0x79c8ff,size=1){
-  const m=new THREE.Mesh(
-   new THREE.TorusGeometry(1.15*size,.045,5,24,Math.PI*1.15),
-   new THREE.MeshBasicMaterial({color,transparent:true,opacity:.95})
-  );
-  m.position.copy(camera.position);
-  m.position.add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(2));
-  m.quaternion.copy(camera.quaternion);
-  scene.add(m);
-  particles.push({mesh:m,velocity:new THREE.Vector3(),life:.25,arc:true});
- }
-
- function blossom(pos,count=15){
-  for(let i=0;i<count;i++){
-   const m=new THREE.Mesh(
-    new THREE.SphereGeometry(.055,5,5),
-    new THREE.MeshBasicMaterial({color:i%2?0xffa4d1:0xffd6e8})
-   );
-   m.position.copy(pos);
-   m.position.x+=(Math.random()-.5)*8;
-   m.position.y+=Math.random()*5;
-   m.position.z+=(Math.random()-.5)*8;
-   scene.add(m);
-   particles.push({
-    mesh:m,
-    velocity:new THREE.Vector3((Math.random()-.5)*2,-.8-Math.random(),(Math.random()-.5)*2),
-    life:1.5+Math.random()
-   });
-  }
- }
-
- function announce(text){
-  const m=$('message');
-  m.textContent=text;m.style.opacity=1;
-  clearTimeout(announce.timer);
-  announce.timer=setTimeout(()=>m.style.opacity=0,1400);
- }
-
- function updateHUD(){
-  $('level').textContent=level;
-  $('kills').textContent=kills;
-  $('hptext').textContent=Math.ceil(hp);
-  $('hpfill').style.width=Math.max(0,hp/maxHp*100)+'%';
-  $('weaponLevel').textContent=weaponLevel;
-  $('enemyCount').textContent='적 '+enemies.length+'명';
- }
-
- function damageEnemy(e,damage){
-  if(!enemies.includes(e))return;
-  e.hp-=damage;
-  particle(e.mesh.position.clone().add(new THREE.Vector3(0,1,0)),0xff5478,7);
-  if(e.hp<=0){
-   scene.remove(e.mesh);
-   enemies=enemies.filter(x=>x!==e);
-   kills++;xp++;
-   if(xp>=nextXp){
-    xp-=nextXp;level++;nextXp+=3;
-    openLevelUp();
-   }
-   updateHUD();
-  }
- }
-
- function forwardDirection(){
-  camera.getWorldDirection(forward);
-  forward.y=0;
-  return forward.normalize();
- }
-
- function melee(damage=1,range=4.1,cone=.35,color=0x83caff){
-  slash(color,1);
-  const f=forwardDirection();
+/* Skills */
+function useSkill(key){
+ if(!gameStarted||paused||!player.alive||cooldown[key]>0)return;
+ if(key==="Q"){
+  cooldown.Q=Math.max(1.8,cooldownMax.Q-aug.qPower*.35);
+  swordSwing=.55;
+  const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+  const center=player.pos.clone().add(forward.clone().multiplyScalar(2.2));
+  slashEffect(center,yaw,0xff526d,1.8+aug.qRange*.15);
   for(const e of [...enemies]){
-   const d=e.mesh.position.clone().sub(player.pos);
-   const distance=d.length();
-   if(distance<=range && d.normalize().dot(f)>cone){
-    damageEnemy(e,damage+weaponLevel-1+passive.damage);
-   }
+   const d=e.group.position.distanceTo(center);
+   if(d<3.2+aug.qRange*.35) damageEnemy(e,65+aug.qPower*24+aug.damage,1);
   }
+  particle(center,0xff536d,18,5,.09);
+  notify(aug.qPower?"발도술 · 강화":"발도술");
  }
-
- function attack(){
-  if(!running||paused||dead)return;
-  const now=performance.now();
-  if(now-lastAttack<430)return;
-  lastAttack=now;
-  weapon.rotation.x=-.85;
-  setTimeout(()=>weapon.rotation.x=0,160);
-  melee(1,4,.3);
- }
-
- function skill(key){
-  if(!running||paused||dead)return;
-  const now=performance.now();
-  const cooldown={q:1800,e:4300,f:2800,r:14000};
-  if(now-skillTime[key]<(cooldown[key]||1000))return;
-  skillTime[key]=now;
-
-  if(key==='q'){
-   announce(upgrades.q>=3?'발도술 · 극의':'발도술!');
-   weapon.rotation.x=-1.5;
-   setTimeout(()=>weapon.rotation.x=0,260);
-   melee(2+upgrades.q,6,.15,0x83d8ff);
-   if(upgrades.q>=3){
-    const f=forwardDirection();
+ if(key==="E"){
+  cooldown.E=Math.max(3,cooldownMax.E-aug.ePower*.5);
+  swordSwing=.7;
+  for(let n=0;n<2+aug.eExtra;n++){
+   setTimeout(()=>{
+    if(!player.alive)return;
+    const center=player.pos.clone();
+    slashEffect(center,yaw+n*.8,0x65baff,2.1);
     for(const e of [...enemies]){
-     const d=e.mesh.position.clone().sub(player.pos);
-     if(d.length()<10&&d.normalize().dot(f)>.2)damageEnemy(e,3);
+     if(e.group.position.distanceTo(player.pos)<4.5) damageEnemy(e,36+aug.ePower*17+aug.damage);
     }
-    particle(player.pos.clone(),0x9ce7ff,25,7);
-   }
+    particle(center,0x8acaff,14,4,.07);
+   },n*170);
   }
-
-  if(key==='e'){
-   announce('회전참!');
-   slash(0x6bbcff,1.6);
-   particle(player.pos.clone(),0x8acbff,22,6);
-   for(const e of [...enemies]){
-    if(e.mesh.position.distanceTo(player.pos)<5+upgrades.e)damageEnemy(e,2+upgrades.e);
-   }
-  }
-
-  if(key==='f'){
-   announce('비검!');
-   const dir=camera.getWorldDirection(new THREE.Vector3());
-   const m=new THREE.Mesh(
-    new THREE.BoxGeometry(.09,.09,1.2),
-    new THREE.MeshBasicMaterial({color:0xa8e1ff})
-   );
-   m.position.copy(camera.position).add(dir.clone().multiplyScalar(1.4));
-   m.quaternion.copy(camera.quaternion);scene.add(m);
-   projectiles.push({mesh:m,velocity:dir.multiplyScalar(25),life:2,damage:2+upgrades.f});
-  }
-
-  if(key==='r')useUltimate();
+  notify("회전참");
  }
-
- function useUltimate(){
-  if(ultimate==='petal'){
-   announce('낙화천풍');
-   blossom(player.pos.clone(),70);
-   slash(0xffa7d4,3);
-   for(const e of [...enemies]){
-    if(e.mesh.position.distanceTo(player.pos)<14)damageEnemy(e,8+upgrades.r*3);
-   }
-   scene.background.set(0x251322);
-   setTimeout(()=>scene.background.set(0x070c18),800);
-  }
-  if(ultimate==='blood'){
-   announce('혈월참');
-   slash(0xff3158,3);
-   const f=forwardDirection();
-   for(const e of [...enemies]){
-    const d=e.mesh.position.clone().sub(player.pos);
-    if(d.length()<22&&d.normalize().dot(f)>.15)damageEnemy(e,12+upgrades.r*3);
-   }
-   particle(player.pos.clone(),0xff365a,40,8);
-  }
-  if(ultimate==='heaven'){
-   announce('천지혁명');
-   particle(player.pos.clone(),0xb9d9ff,75,10);
-   for(const e of [...enemies]){
-    if(e.mesh.position.distanceTo(player.pos)<18)damageEnemy(e,14+upgrades.r*3);
-   }
-  }
+ if(key==="F"){
+  cooldown.F=Math.max(2,cooldownMax.F-aug.fPower*.4);
+  const dir=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(.12,.09,1.2),mat(0xcde5ff,.15,.8));
+  mesh.position.copy(player.pos).add(new THREE.Vector3(0,1.25,0)).add(dir.clone().multiplyScalar(1.2));
+  mesh.rotation.y=yaw;
+  scene.add(mesh);
+  projectiles.push({mesh,dir,speed:17+aug.fSpeed*3,life:2.4,damage:55+aug.fPower*25+aug.damage});
+  particle(mesh.position,0x9ccfff,8,2,.05);
+  notify("비검");
  }
-
- // 증강 목록
- const augmentPool=[
-  {id:'q1',name:'섬광 발도',desc:'발도술 피해량 증가.',rarity:'common',type:'skill',skill:'q'},
-  {id:'q2',name:'잔상 베기',desc:'발도술 공격 범위 증가.',rarity:'rare',type:'skill',skill:'q'},
-  {id:'e1',name:'회전 강화',desc:'회전참 피해량 증가.',rarity:'common',type:'skill',skill:'e'},
-  {id:'e2',name:'폭풍의 칼날',desc:'회전참 범위 증가.',rarity:'rare',type:'skill',skill:'e'},
-  {id:'f1',name:'비검 연마',desc:'비검 피해량 증가.',rarity:'common',type:'skill',skill:'f'},
-  {id:'f2',name:'관통 검기',desc:'비검의 공격력이 강화된다.',rarity:'epic',type:'skill',skill:'f'},
-  {id:'r1',name:'궁극의 여운',desc:'궁극기 피해량 증가.',rarity:'epic',type:'skill',skill:'r'},
-  {id:'p1',name:'강철의 육체',desc:'최대 체력이 20 증가한다.',rarity:'common',type:'passive',effect:'hp'},
-  {id:'p2',name:'날렵한 발걸음',desc:'이동 속도가 증가한다.',rarity:'rare',type:'passive',effect:'speed'},
-  {id:'p3',name:'흡혈의 검',desc:'적 처치 시 체력을 회복한다.',rarity:'epic',type:'passive',effect:'heal'},
-  {id:'p4',name:'예리한 칼날',desc:'모든 공격 피해량이 증가한다.',rarity:'rare',type:'passive',effect:'damage'},
-  {id:'p5',name:'치명적인 일격',desc:'공격력이 추가로 증가한다.',rarity:'legend',type:'passive',effect:'critical'}
- ];
-
- const awakeningPool=[
-  {id:'aq',name:'발도술 · 극의',desc:'발도술이 강화되어 추가 검격을 발동한다.',rarity:'awaken',type:'skill',skill:'q',requires:'q'},
-  {id:'ae',name:'회전참 · 폭풍',desc:'회전참의 범위와 위력이 크게 증가한다.',rarity:'awaken',type:'skill',skill:'e'},
-  {id:'af',name:'비검 · 무한',desc:'비검의 위력이 크게 증가한다.',rarity:'awaken',type:'skill',skill:'f'},
-  {id:'ar',name:'궁극 · 각성',desc:'궁극기의 피해량이 크게 증가한다.',rarity:'awaken',type:'skill',skill:'r'}
- ];
-
- let owned=new Set();
- function applyAugment(a){
-  owned.add(a.id);
-  if(a.type==='skill'){
-   upgrades[a.skill]++;
-   if(a.id==='aq')upgrades.q=Math.max(3,upgrades.q);
-  }else{
-   if(a.effect==='hp'){maxHp+=20;hp=Math.min(maxHp,hp+20);}
-   if(a.effect==='speed')passive.speed+=.7;
-   if(a.effect==='heal')passive.heal++;
-   if(a.effect==='damage')passive.damage++;
-   if(a.effect==='critical')passive.critical+=2;
-  }
-  announce(a.name+' 획득!');
-  updateHUD();
- }
-
- function eligible(pool){
-  return pool.filter(a=>!owned.has(a.id)&&(!a.requires||upgrades[a.requires]>0));
- }
-
- function chooseCards(list,title,desc){
+ if(key==="R"){
+  if(!selectedUltimate){openUltimate();return}
+  cooldown.R=cooldownMax.R;
+  ultAnimation=1.8;
   paused=true;
-  $('overlay').style.display='flex';
-  $('cardTitle').textContent=title;
-  $('cardDesc').textContent=desc;
-  const wrap=$('cards');wrap.innerHTML='';
-  list.forEach(a=>{
-   const r=rarity[a.rarity];
-   const el=document.createElement('div');
-   el.className='card';
-   el.style.borderColor=r.color;
-   el.innerHTML=
-    '<div class="rarity '+r.class+'">'+r.name+'</div>'+
-    '<h3>'+a.name+'</h3><p>'+a.desc+'</p>';
-   el.addEventListener('pointerdown',e=>{
-    e.preventDefault();
-    if(a.id==='ult-petal'||a.id==='ult-blood'||a.id==='ult-heaven'){
-     ultimate=a.id.replace('ult-','');
-     $('ultName').textContent=ultimateOptions.find(x=>x.id===ultimate).name;
-    }else if(a.type==='weapon'){
-     weaponLevel++;
-     announce('무기 강화!');
-    }else applyAugment(a);
-    closeOverlay();
-   });
-   wrap.appendChild(el);
-  });
+  const overlay=document.createElement("div");
+  overlay.style.cssText="position:fixed;inset:0;z-index:9;background:rgba(2,4,12,.78);pointer-events:none";
+  document.body.appendChild(overlay);
+  setTimeout(()=>overlay.remove(),550);
+  notify(selectedUltimate.name);
+  setTimeout(()=>{
+   const center=player.pos.clone();
+   if(selectedUltimate.id==="petal"){
+    for(let i=0;i<18;i++){
+     const p=center.clone().add(new THREE.Vector3((Math.random()-.5)*17,Math.random()*4,(Math.random()-.5)*17));
+     particle(p,0xff9cbd,4,2,.12);
+    }
+    for(const e of [...enemies]) if(e.group.position.distanceTo(center)<13) damageEnemy(e,180+aug.ultPower*45);
+    slashEffect(center,yaw,0xff9ac1,8);
+   }else if(selectedUltimate.id==="blood"){
+    for(const e of [...enemies]) if(e.group.position.distanceTo(center)<11) damageEnemy(e,240+aug.ultPower*50);
+    particle(center,0xff173e,65,9,.13);
+    slashEffect(center,yaw,0xff234c,7);
+   }else{
+    for(const e of [...enemies]) if(e.group.position.distanceTo(center)<16) damageEnemy(e,150+aug.ultPower*50);
+    particle(center,0x6db9ff,70,10,.12);
+    slashEffect(center,yaw,0x5aabff,10);
+   }
+   paused=false;
+  },650);
  }
+ updateHud();
+}
 
- function closeOverlay(){
-  $('overlay').style.display='none';
-  paused=false;
-  clock.getDelta();
+/* Experience and level-ups */
+function gainXp(amount){
+ player.xp+=amount;
+ while(player.xp>=player.nextXp){
+  player.xp-=player.nextXp;
+  player.level++;
+  player.nextXp=Math.floor(player.nextXp*1.32+10);
+  openAugments();
  }
+ updateHud();
+}
 
- $('skip').addEventListener('pointerdown',e=>{
-  e.preventDefault();closeOverlay();
- });
+const augmentPool=[
+ {id:"qPower",name:"발도술 강화",rarity:"희귀",desc:"Q 발도술 피해량 증가",apply:()=>aug.qPower++},
+ {id:"qRange",name:"발도술 확장",rarity:"영웅",desc:"Q 발도술 범위 증가",apply:()=>aug.qRange++},
+ {id:"ePower",name:"회전참 강화",rarity:"희귀",desc:"E 회전참 피해량 증가",apply:()=>aug.ePower++},
+ {id:"eExtra",name:"연속 회전",rarity:"영웅",desc:"E 회전참 공격 횟수 +1",apply:()=>aug.eExtra++},
+ {id:"fPower",name:"비검 강화",rarity:"희귀",desc:"F 비검 피해량 증가",apply:()=>aug.fPower++},
+ {id:"fSpeed",name:"비검 가속",rarity:"영웅",desc:"비검 속도 증가",apply:()=>aug.fSpeed++},
+ {id:"ultPower",name:"궁극기 강화",rarity:"전설",desc:"궁극기 피해량 증가",apply:()=>aug.ultPower++},
+ {id:"damage",name:"검술 숙련",rarity:"일반",desc:"모든 공격 피해량 증가",apply:()=>aug.damage+=5},
+ {id:"attackSpeed",name:"신속한 검",rarity:"희귀",desc:"기본 공격 속도 증가",apply:()=>aug.attackSpeed++},
+ {id:"moveSpeed",name:"질풍 보법",rarity:"일반",desc:"이동 속도 증가",apply:()=>{aug.moveSpeed++;player.speed+=.45}},
+ {id:"maxHp",name:"강인한 육체",rarity:"일반",desc:"최대 체력 +20 및 체력 회복",apply:()=>{player.maxHp+=20;player.hp=Math.min(player.maxHp,player.hp+20)}},
+ {id:"lifeSteal",name:"흡혈의 검",rarity:"영웅",desc:"적 처치 시 체력 회복량 증가",apply:()=>player.lifeSteal+=3},
+ {id:"crit",name:"치명적인 일격",rarity:"전설",desc:"기본 공격 피해량 추가 증가",apply:()=>aug.crit++},
+ {id:"weapon",name:"명검 강화",rarity:"희귀",desc:"무기 공격력 +5",apply:()=>aug.weapon++}
+];
 
- function openLevelUp(){
-  const pool=eligible(augmentPool);
-  const choices=[];
-  const weights={common:55,rare:28,epic:13,legend:4};
-  while(choices.length<3&&pool.length){
-   let total=pool.reduce((s,a)=>s+(weights[a.rarity]||1),0);
-   let n=Math.random()*total;
-   let picked=pool.fin
+const awakeningPool=[
+ {id:"awQ",name:"발도술 · 극의",rarity:"각성",desc:"발도술이 더욱 넓고 강력해진다.",apply:()=>{aug.qPower+=3;aug.qRange+=3}},
+ {id:"awE",name:"회전참 · 무한",rarity:"각성",desc:"회전참 공격 횟수와 피해량 대폭 증가.",apply:()=>{aug.ePower+=3;aug.eExtra+=2}},
+ {id:"awF",name:"비검 · 천뢰",rarity:"각성",desc:"비검의 위력과 속도가 크게 증가.",apply:()=>{aug.fPower+=4;aug.fSpeed+=3}},
+ {id:"awR",name:"궁극 · 개화",rarity:"각성",desc:"궁극기의 피해량이 크게 증가한다.",apply:()=>aug.ultPower+=5},
+ {id:"awAll",name:"무사의 각성",rarity:"각성",desc:"공격력과 최대 체력이 크게 증가한다.",apply:()=>{aug.damage+=25;player.maxHp+=35;player.hp=player.maxHp}}
+];
+
+function openAugments(){
+ paused=true;
+ $("cardScreen").classList.remove("hidden");
+ const container=$("augmentCards");
+ container.innerHTML="";
+ const available=augmentPool.filter(a=>!acquired.has(a.id)||["damage","maxHp","weapon","attackSpeed","moveSpeed","lifeSteal"].includes(a.id));
+ const cho
